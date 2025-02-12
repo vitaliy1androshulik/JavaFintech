@@ -1,6 +1,7 @@
 package org.example.services;
 
 import org.example.dto.category.CategoryCreateDto;
+import org.example.dto.category.CategoryEditDto;
 import org.example.entities.CategoryEntity;
 import org.example.repository.ICategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class CategoryServices {
         return repository.findAll();
     }
 
-    public CategoryEntity updateCategory(CategoryCreateDto category, Integer Id) {
-        CategoryEntity catDB = repository.findById(Id).get();
+    public CategoryEntity updateCategory(CategoryEditDto category) {
+        CategoryEntity catDB = repository.findById(category.getId()).get();
         catDB.setName(category.getName());
         catDB.setImage(category.getImage());
         catDB.setDescription(category.getDescription());

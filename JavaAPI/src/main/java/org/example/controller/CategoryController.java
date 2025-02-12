@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.dto.category.CategoryCreateDto;
+import org.example.dto.category.CategoryEditDto;
 import org.example.entities.CategoryEntity;
 
 import org.example.services.CategoryServices;
@@ -32,8 +33,8 @@ public class CategoryController {
 
     // UPDATE
     @PutMapping("/{id}")
-    public CategoryEntity updateCategory(Integer id, CategoryCreateDto category) {
-        return categoryService.updateCategory(category, id);
+    public CategoryEntity updateCategory(CategoryEditDto category) {
+        return categoryService.updateCategory(category);
     }
 
     // DELETE
