@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class CategoryServices {
     @Autowired
@@ -28,6 +30,9 @@ public class CategoryServices {
         return repository.findAll();
     }
 
+    public Optional<CategoryEntity> getCategoryById(Integer id) {
+        return repository.findById(id);
+    }
     public CategoryEntity updateCategory(CategoryEditDto category) {
         CategoryEntity catDB = repository.findById(category.getId()).get();
         catDB.setName(category.getName());
