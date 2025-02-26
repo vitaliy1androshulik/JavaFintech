@@ -1,48 +1,72 @@
 package org.example.services;
 
+import lombok.AllArgsConstructor;
 import org.example.dto.category.CategoryCreateDto;
-import org.example.dto.category.CategoryEditDto;
+import org.example.dto.category.CategoryItemDto;
 import org.example.entities.CategoryEntity;
+import org.example.mapper.CategoryMapper;
 import org.example.repository.ICategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CategoryServices {
-    @Autowired
-    private ICategoryRepository repository;
+
+
+    private ICategoryRepository categoryRepository;
+    private FileService fileService;
+    private CategoryMapper categoryMapper;
+
+    public List<CategoryItemDto> getAllCategories() {
+        return categoryMapper.toDto(categoryRepository.findAll());
+    }
+
+    public CategoryItemDto getCategoryById(Integer id) {
+        return categoryMapper.toDto(categoryRepository.findById(id).get());
+    }
 
     public CategoryEntity createCategory(CategoryCreateDto category) {
-        CategoryEntity catDB = new CategoryEntity();
-        catDB.setName(category.getName());
-        catDB.setImage(category.getImage());
-        catDB.setDescription(category.getDescription());
-        catDB.setCreationTime(LocalDateTime.now());
-        return repository.save(catDB);
+        var entity = new CategoryEntity();
+        entity.setName(category.getName());
+        entity.setDescription(category.getDescription());
+        entity.setCreationTime(LocalDateTime.now());
+        var newImageFile = category.getImageFile();
+        if (newImageFile!=null && !newImageFile.isEmpty()){
+            var imagePath = fileService.load(newImageFile);
+            entity.setImage(imagePath);
+        }
+
+        return categoryRepository.save(entity);
     }
 
-    public List<CategoryEntity> fetchCategoryList() {
-        return repository.findAll();
+    public boolean updateCategory(Integer id, CategoryCreateDto category) {
+        var res = categoryRepository.findById(id);
+        if (res.isEmpty()){
+            return false;
+        }
+        var entity = res.get();
+        entity.setName(category.getName());
+        entity.setDescription(category.getDescription());
+
+        var newImageFile = category.getImageFile();
+        if (newImageFile!=null && !newImageFile.isEmpty()){
+            var newImagePath = fileService.replace(entity.getImage(), category.getImageFile());
+            entity.setImage(newImagePath);
+        }
+        categoryRepository.save(entity);
+        return true;
     }
 
-    public Optional<CategoryEntity> getCategoryById(Integer id) {
-        return repository.findById(id);
-    }
-    public CategoryEntity updateCategory(CategoryEditDto category) {
-        CategoryEntity catDB = repository.findById(category.getId()).get();
-        catDB.setName(category.getName());
-        catDB.setImage(category.getImage());
-        catDB.setDescription(category.getDescription());
-        return repository.save(catDB);
-    }
-
-    public void deleteCategoryById(Integer Id) {
-        repository.deleteById(Id);
+    public boolean deleteCategory(Integer id) {
+        var res = categoryRepository.findById(id);
+        if (res.isEmpty()){
+            return false;
+        }
+        fileService.remove(res.get().getImage());
+        categoryRepository.deleteById(id);
+        return true;
     }
 }
 

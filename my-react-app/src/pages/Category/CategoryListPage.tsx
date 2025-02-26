@@ -13,7 +13,6 @@ const CategoryListPage = () => {
     const [deleteCategory] = useDeleteCategoryMutation();
     const handleDelete = async (id: number) => {
         try {
-            console.log("your id "+id);
             await deleteCategory(id).unwrap();
             notification.success({
                 message: 'Категорія видалена',
